@@ -24,6 +24,7 @@ class User(AbstractUser) :
         (ADMIN_USER_ROLE, ADMIN_USER_ROLE),
     )
     
+    email = models.EmailField(unique=True, max_length=50)
     role = models.CharField(max_length=20, choices=USER_ROLES, default=DEFAULT_USER_ROLE)
     
     groups = models.ManyToManyField(Group, related_name='User_Group', blank=True)
@@ -32,7 +33,7 @@ class User(AbstractUser) :
     )
     
     objects = userManager()
-    USERNAME_FIELD = 'username'
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     
     def __str__(self) :
