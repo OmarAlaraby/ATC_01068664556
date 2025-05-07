@@ -9,13 +9,15 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
 
 
-from .serializers import UserSerializer, TokenObtainPairSerializer__, TokenRefreshSerializer__
+from .serializers import (UserSerializer, TokenObtainPairSerializer__,
+                          TokenRefreshSerializer__)
 from .models import User
 from .utils import send_verification_email
 
 # helpers
 from django.shortcuts import get_object_or_404
 from project.utils import get_attr_or_400
+from drf_yasg.utils import swagger_auto_schema
 
 
 @api_view(['POST'])
@@ -26,7 +28,6 @@ def signUp(request) :
     
     if serializer.is_valid() :
         user = serializer.save()
-        user.set_password(password)
         user.is_active = False
         user.save()
         

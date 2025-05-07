@@ -1,9 +1,12 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from .models import User
 
-class UserSerializer(ModelSerializer) :
+
+class UserSerializer(serializers.ModelSerializer) :
+    password = serializers.CharField(write_only=True, required=True, min_length=8)
+    
     class Meta : 
         model = User
         fields = [
@@ -11,7 +14,17 @@ class UserSerializer(ModelSerializer) :
             'username',
             'email',
             'role',
+            'password',
         ]
+        read_only_fields = ['id', 'role']
+        
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user
+        
         
 
 class TokenObtainPairSerializer__(TokenObtainPairSerializer):
