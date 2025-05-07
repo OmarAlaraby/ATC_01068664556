@@ -24,7 +24,6 @@ from drf_yasg.utils import swagger_auto_schema
 @transaction.atomic
 def signUp(request) :
     serializer = UserSerializer(data=request.data)
-    password = get_attr_or_400(request, 'password')
     
     if serializer.is_valid() :
         user = serializer.save()
