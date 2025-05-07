@@ -6,4 +6,5 @@ urlpatterns = [
     path('user/signup/', views.signUp, name='signup_user'),
     path('user/signin/', views.TokenObtainPairView__.as_view(), name='sginin_user'),
     path('token/refresh/', views.TokenRefreshView__.as_view(), name='token_refresh'),
+    path('verify-email/<uidb64>/<token>/', views.verify_email),
 ]
