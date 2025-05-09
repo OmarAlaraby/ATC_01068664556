@@ -19,6 +19,11 @@ class EventViewSet(AreebViewSet) :
     serializer_class = EventSerializer
     queryset = Event.objects.all()
     
+    def list(self, request, *args, **kwargs):
+        print(request.user)
+        print(request.auth)
+        return super().list(request, *args, **kwargs)
+    
 
 # @api_view(['POST'])
 # def book_event(request, event_id):
