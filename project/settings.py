@@ -13,6 +13,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from decouple import config
 
+# for cloudinary host
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -43,8 +48,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'drf_yasg',
+    'cloudinary',
     
     'accounts',
+    'events',
 ]
 
 MIDDLEWARE = [
@@ -144,3 +151,9 @@ EMAIL_PORT = int(config('EMAIL_PORT'))
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+
+cloudinary.config( 
+  cloud_name = 'YOUR_CLOUD_NAME', 
+  api_key = 'YOUR_API_KEY', 
+  api_secret = 'YOUR_API_SECRET' 
+)
