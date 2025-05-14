@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Event, Tags
 from tickets.models import Ticket
+from django.utils import timezone
 
 class TagsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,12 +15,12 @@ class EventSerializer(serializers.ModelSerializer):
     booked = serializers.SerializerMethodField()
     image = serializers.SerializerMethodField()
     image_upload = serializers.ImageField(write_only=True, required=False)
-
+    available = serializers.SerializerMethodField()
     
     class Meta:
         model = Event
-        fields = ['id', 'title', 'description', 'price',
-                  'venue', 'image', 'image_upload', 'category', 'tags', 'booked',
+        fields = ['id', 'title', 'description', 'price', 'venue', 'image',
+                  'image_upload', 'category', 'tags', 'booked', 'available',
                   'start_date', 'deadline', 'created_at']
         read_only_fields = ['id', 'created_at']
         
@@ -30,6 +31,9 @@ class EventSerializer(serializers.ModelSerializer):
         
     def get_booked(self, obj):
         return Ticket.objects.filter(user=self.context['request'].user, event=obj).exists()
+    
+    def get_available(self, obj):
+        return obj.deadline > timezone.now() and obj.start_date > timezone.now()
         
     def create(self, validated_data):
         tags_data = validated_data.pop('tags', [])
