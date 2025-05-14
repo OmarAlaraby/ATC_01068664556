@@ -117,13 +117,14 @@ async function fetchEventDetails() {
 }
 
 async function bookEvent() {
+    let response = null;
     try {
         const accessToken = localStorage.getItem(CONFIG.TOKEN_NAMES.ACCESS);
         if (!accessToken) {
             throw new Error('No access token found. Please login again.');
         }
 
-        const response = await fetch(`${CONFIG.API_BASE_URL}/events/${eventId}/book/`, {
+        response = await fetch(`${CONFIG.API_BASE_URL}/book/event/${eventId}/`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -131,24 +132,32 @@ async function bookEvent() {
             }
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to book event');
+        if (response.ok) {
+            try {
+                const responseData = await response.json();
+                console.log('Booking response:', responseData);
+            } catch (jsonError) {
+                console.warn('Could not parse JSON response:', jsonError);
+            }
+            
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+            
+            document.getElementById('bookBtn').disabled = true;
+            const statusElem = document.getElementById('eventStatus');
+            statusElem.textContent = 'Booked';
+            statusElem.classList.remove('status-green', 'status-yellow');
+            statusElem.classList.add('status-red');
+            return;
+        } else {
+            let errorMsg = 'Failed to book event';
+            try {
+                const errorData = await response.json();
+                errorMsg = errorData.message || errorData.error || errorMsg;
+            } catch (e) {
+            }
+            throw new Error(errorMsg);
         }
-
-        const responseData = await response.json();
-        if (responseData.status !== 'success') {
-            throw new Error(responseData.message || 'Failed to book event');
-        }
-
-        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-        successModal.show();
-        
-        document.getElementById('bookBtn').disabled = true;
-        const statusElem = document.getElementById('eventStatus');
-        statusElem.textContent = 'Booked';
-        statusElem.classList.remove('status-green');
-        statusElem.classList.add('status-red');
-
     } catch (error) {
         console.error('Error booking event:', error);
         alert('Failed to book event: ' + error.message);
