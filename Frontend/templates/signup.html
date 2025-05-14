@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Areeb Events</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../statics/login.css">
+</head>
+<body class="d-flex align-items-center min-vh-100">
+    <div class="page-container">
+        <div class="login-wrapper">
+            <div class="login-container">
+                <div class="login-card">
+                    <div class="login-header">
+                        <i class="bi bi-calendar2-event logo-icon"></i>
+                        <h2 class="logo-text">Areeb Events</h2>
+                        <p class="welcome-text">Create your account to get started</p>
+                    </div>
+
+                    <form id="signupForm" novalidate>
+                        <div class="input-field">
+                            <label for="username" class="field-label">Username</label>
+                            <div class="input-with-icon">
+                                <span class="icon-wrapper">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                <input type="text" class="text-input" id="username" 
+                                       placeholder="Choose a username" required
+                                       minlength="3" maxlength="30">
+                            </div>
+                            <div class="error-message">
+                                Username must be between 3 and 30 characters
+                            </div>
+                        </div>
+
+                        <div class="input-field">
+                            <label for="email" class="field-label">Email address</label>
+                            <div class="input-with-icon">
+                                <span class="icon-wrapper">
+                                    <i class="bi bi-envelope"></i>
+                                </span>
+                                <input type="email" class="text-input" id="email" 
+                                       placeholder="Enter your email" required>
+                            </div>
+                            <div class="error-message">
+                                Please enter a valid email address
+                            </div>
+                        </div>
+
+                        <div class="input-field">
+                            <label for="password" class="field-label">Password</label>
+                            <div class="input-with-icon">
+                                <span class="icon-wrapper">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+                                <input type="password" class="text-input" id="password" 
+                                       placeholder="Create a password" required
+                                       minlength="8">
+                                <button class="toggle-password" type="button" id="togglePassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div class="error-message">
+                                Password must be at least 8 characters
+                            </div>
+                        </div>
+
+                        <button type="submit" class="login-button" id="signupButton">
+                            <span class="loading-spinner hidden" role="status"></span>
+                            Sign Up
+                        </button>
+
+                        <div class="error-alert hidden" id="errorAlert" role="alert">
+                            <i class="bi bi-exclamation-circle"></i>
+                            <span id="errorMessage"></span>
+                        </div>
+
+                        <div class="success-alert hidden" id="successAlert" role="alert">
+                            <i class="bi bi-check-circle"></i>
+                            <span id="successMessage"></span>
+                        </div>
+                    </form>
+
+                    <div class="signup-prompt">
+                        <p>Already have an account? <a href="login.html" class="signup-link">Login</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">
+        <i class="bi bi-moon-fill"></i>
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/statics/config.js"></script>
+    <script>
+        const darkToggle = document.getElementById('darkToggle');
+        const body = document.body;
+        const icon = darkToggle.querySelector('i');
+
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            body.classList.add('dark-mode');
+            icon.classList.replace('bi-moon-fill', 'bi-sun-fill');
+        }
+
+        darkToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+            
+            if (isDark) {
+                icon.classList.replace('bi-moon-fill', 'bi-sun-fill');
+            } else {
+                icon.classList.replace('bi-sun-fill', 'bi-moon-fill');
+            }
+        });
+
+        const signupForm = document.getElementById('signupForm');
+        const signupButton = document.getElementById('signupButton');
+        const spinner = signupButton.querySelector('.loading-spinner');
+        const errorAlert = document.getElementById('errorAlert');
+        const errorMessage = document.getElementById('errorMessage');
+        const successAlert = document.getElementById('successAlert');
+        const successMessage = document.getElementById('successMessage');
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            togglePassword.querySelector('i').classList.toggle('bi-eye');
+            togglePassword.querySelector('i').classList.toggle('bi-eye-slash');
+        });
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            errorAlert.classList.remove('visible');
+            successAlert.classList.remove('visible');
+            signupForm.classList.remove('was-validated');
+
+            if (!signupForm.checkValidity()) {
+                signupForm.classList.add('was-validated');
+                return;
+            }
+
+            signupButton.disabled = true;
+            spinner.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}${CONFIG.ENDPOINTS.SIGNUP}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value,
+                        email: document.getElementById('email').value,
+                        password: passwordInput.value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    if (data.errors) {
+                        const errorMessages = [];
+                        for (const [field, messages] of Object.entries(data.errors)) {
+                            const messageText = Array.isArray(messages) ? messages.join(', ') : messages;
+                            errorMessages.push(`${field}: ${messageText}`);
+                        }
+                        throw new Error(errorMessages.join('\n'));
+                    }
+                    throw new Error(data.message || 'Signup failed. Please try again.');
+                }
+
+                successMessage.innerHTML = `
+                    <strong>Account created successfully!</strong><br>
+                    We've sent a verification link to your email address.<br>
+                    Please check your inbox and click the link to activate your account.
+                `;
+                successAlert.classList.add('visible');
+                
+                signupForm.querySelectorAll('input, button').forEach(el => el.disabled = true);
+                
+                const loginButton = document.createElement('button');
+                loginButton.className = 'login-button mt-3';
+                loginButton.textContent = 'Return to Login';
+                loginButton.onclick = () => window.location.href = 'login.html';
+                successAlert.parentNode.insertBefore(loginButton, successAlert.nextSibling);
+
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorAlert.classList.add('visible');
+            } finally {
+                signupButton.disabled = false;
+                spinner.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
