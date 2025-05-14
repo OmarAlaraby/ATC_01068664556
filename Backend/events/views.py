@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import EventSerializer
 from .models import Event
 from .permissions import EventPermission
+from project.pagination import AreebPagination
 
 
 # utils
@@ -18,11 +19,7 @@ class EventViewSet(AreebViewSet) :
     permission_classes = [EventPermission]
     serializer_class = EventSerializer
     queryset = Event.objects.all()
-    
-    def list(self, request, *args, **kwargs):
-        print(request.user)
-        print(request.auth)
-        return super().list(request, *args, **kwargs)
+    pagination_class = AreebPagination
     
 
 # @api_view(['POST'])

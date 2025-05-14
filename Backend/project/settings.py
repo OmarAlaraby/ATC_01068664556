@@ -130,6 +130,8 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'EXCEPTION_HANDLER': 'project.exceptions.ExceptionResponse',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
 }
 
 SIMPLE_JWT = {
