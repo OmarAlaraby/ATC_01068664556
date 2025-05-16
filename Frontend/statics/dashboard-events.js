@@ -23,7 +23,7 @@ async function fetchDashboardEvents(url = null) {
             throw new Error('No access token found. Please login again.');
         }
 
-        const apiUrl = url || `${CONFIG.API_BASE_URL}/events/?page=1`;
+        const apiUrl = url || `${CONFIG.API_BASE_URL}/events/?page_size=100&page=1`;
         
         const response = await fetch(apiUrl, {
             method: 'GET',
