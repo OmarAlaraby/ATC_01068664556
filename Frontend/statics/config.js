@@ -8,7 +8,10 @@ const CONFIG = {
     TOKEN_NAMES: {
         ACCESS: 'access_token',
         REFRESH: 'refresh_token',
-        USER_DATA: 'user_data'
+        USER_DATA: 'user_data',
+        DASHBOARD_ACCESS: 'dashboard_access_token',
+        DASHBOARD_REFRESH: 'dashboard_refresh_token',
+        DASHBOARD_USER_DATA: 'dashboard_user_data'
     }
 };
 

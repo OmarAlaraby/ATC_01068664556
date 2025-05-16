@@ -203,7 +203,7 @@ function updateDashboardEventsTable() {
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-${event.id}">
                         <li><a class="dropdown-item" href="event-details.html?id=${event.id}" target="_blank"><i class="bi bi-eye me-2"></i>View Details</a></li>
-                        <li><a class="dropdown-item edit-event-btn" data-id="${event.id}"><i class="bi bi-pencil me-2"></i>Edit Event</a></li>
+                        <li><a class="dropdown-item edit-event-btn" href="#" data-bs-toggle="modal" data-bs-target="#editEventModal" data-id="${event.id}"><i class="bi bi-pencil me-2"></i>Edit Event</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger delete-event-btn" data-id="${event.id}"><i class="bi bi-trash me-2"></i>Delete Event</a></li>
                     </ul>
@@ -371,38 +371,58 @@ function showToast(message, type = 'info') {
     }, 5000);
 }
 
-function editEvent(eventId) {
-    console.log(`Edit event ${eventId}`);
-
-    const event = dashboardEvents.events.find(event => event.id.toString() === eventId.toString());
+async function editEvent(eventId) {
+    const event = dashboardEvents.events.find(e => e.id === parseInt(eventId));
     if (!event) {
-        console.error(`Event with ID ${eventId} not found`);
+        console.error('Event not found:', eventId);
         return;
     }
 
+    // Clean up any existing modal backdrops and classes
+    document.body.classList.remove('modal-open');
+    const modalBackdrops = document.querySelectorAll('.modal-backdrop');
+    modalBackdrops.forEach(backdrop => backdrop.remove());
+    
+    // Populate form fields
     document.getElementById('editEventId').value = event.id;
     document.getElementById('editEventTitle').value = event.name;
     document.getElementById('editEventCategory').value = event.category;
     document.getElementById('editEventVenue').value = event.venue;
     document.getElementById('editEventPrice').value = event.price;
-
-    const startDate = new Date(event.startsAt);
-    const deadline = new Date(event.deadline);
-    
-    document.getElementById('editEventStartDate').value = formatDateForInput(startDate);
-    document.getElementById('editEventDeadline').value = formatDateForInput(deadline);
     document.getElementById('editEventDescription').value = event.description;
-
+    
+    const startDate = new Date(event.startsAt);
+    document.getElementById('editEventStartDate').value = startDate.toISOString().slice(0, 16);
+    
+    const deadline = new Date(event.deadline);
+    document.getElementById('editEventDeadline').value = deadline.toISOString().slice(0, 16);
+    
     const currentImageElement = document.getElementById('currentEventImage');
     if (currentImageElement) {
-        currentImageElement.src = event.image || 'https://via.placeholder.com/150x100';
-        currentImageElement.alt = event.name;
+        currentImageElement.src = event.image || 'https://placehold.co/150x100';
     }
 
+    // Handle modal cleanup when it's hidden
+    const editEventModalElement = document.getElementById('editEventModal');
+    editEventModalElement.addEventListener('hidden.bs.modal', function () {
+        document.body.classList.remove('modal-open');
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
+    });
+
+    // Remove existing event listener if any
+    const updateEventBtn = document.getElementById('updateEventBtn');
+    const newUpdateBtn = updateEventBtn.cloneNode(true);
+    updateEventBtn.parentNode.replaceChild(newUpdateBtn, updateEventBtn);
+    
+    // Add new event listener
+    newUpdateBtn.addEventListener('click', () => updateEvent(event.id));
+    
+    // Show the modal
     const editEventModal = new bootstrap.Modal(document.getElementById('editEventModal'));
     editEventModal.show();
-
-    document.getElementById('updateEventBtn').addEventListener('click', () => updateEvent(event.id));
 }
 
 function formatDateForInput(date) {
