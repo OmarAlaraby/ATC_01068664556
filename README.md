@@ -1,6 +1,19 @@
 # Areeb Event Booking System
 
-A full-stack web application for event management, built with Django REST Framework backend and vanilla JavaScript frontend.
+<div align="center">
+<img src="https://img.shields.io/badge/Status-Active-success" alt="Status">
+<img src="https://img.shields.io/badge/Python-3.12+-blue" alt="Python Version">
+<img src="https://img.shields.io/badge/License-MIT-green" alt="License">
+
+**A full-stack web application for event management, built with Django REST Framework backend and vanilla JavaScript frontend.**
+</div>
+
+<div align="center">
+
+### ⚠️ IMPORTANT NOTICE ⚠️
+**[See Test Credentials](#test-credentials) and [External Services](#external-services) sections for critical setup information**
+
+</div>
 
 ## Table of Contents
 - [Project Structure](#project-structure)
@@ -12,6 +25,7 @@ A full-stack web application for event management, built with Django REST Framew
 - [External Services](#external-services)
 - [Test Credentials](#test-credentials)
 - [Email Verification](#email-verification)
+- [Unit Testing](#unit-testing)
 - [Security Features](#security-features)
 
 ## Project Structure
@@ -88,43 +102,129 @@ http://localhost:8000/docs/
 
 ## External Services
 
-This project uses the following external services:
+> ⚠️ **IMPORTANT**: This project relies on external services that need to be configured properly.
+
+<table>
+<tr>
+<th align="center">🌐 External Service</th>
+<th align="center">⚙️ Configuration</th>
+</tr>
+<tr>
+<td>
 
 ### Cloudinary
-The application uses Cloudinary for image hosting and management. You'll need to:
+Used for image hosting and management
+
+</td>
+<td>
+
 1. Create a Cloudinary account at https://cloudinary.com/
 2. Get your Cloud Name, API Key, and API Secret
-3. Configure these in your `.env` file based on the `.env.example` template
+3. Configure in `.env` file as shown in `.env.example`
+
+</td>
+</tr>
+<tr>
+<td>
 
 ### PostgreSQL Database
-By default, the project uses SQLite for development. For production, it's configured to use PostgreSQL:
-1. Create a PostgreSQL database
-2. Update the database connection details in your `.env` file based on the `.env.example` template
+For production database (SQLite used for development)
 
-Refer to `.env.example` in the Backend directory for the complete configuration structure.
+</td>
+<td>
+
+1. Create a PostgreSQL database
+2. Update database connection details in `.env` file
+3. See `.env.example` for configuration format
+
+</td>
+</tr>
+</table>
+
+**Note**: Refer to `.env.example` in the Backend directory for the complete configuration structure.
 
 ## Test Credentials
 
-You can test the application locally using SQLite with these pre-configured accounts:
+> ⚠️ **IMPORTANT**: Use these credentials to test the application locally with SQLite
 
-### Admin Dashboard Access
-- **Email:** admin@gmail.com
-- **Password:** 123
-- **URL:** `/Frontend/templates/dashboard-login.html`
+<div align="center">
 
-### User Website Access
-- **Email:** test_user@gmail.com
-- **Password:** test_password@1234
-- **URL:** `/Frontend/templates/login.html`
+<table>
+<tr>
+<th align="center">👑 Admin Dashboard</th>
+<th align="center">👤 User Website</th>
+</tr>
+<tr>
+<td>
+
+```
+Email: admin@gmail.com
+Password: 123
+```
+
+Access at: `/Frontend/templates/dashboard-login.html`
+
+</td>
+<td>
+
+```
+Email: test_user@gmail.com
+Password: test_password@1234
+```
+
+Access at: `/Frontend/templates/login.html`
+
+</td>
+</tr>
+</table>
+
+</div>
 
 ## Email Verification
 
+> ⚠️ **IMPORTANT**: The system sends verification emails that need to be configured
+
+<div align="center">
+<img src="https://img.shields.io/badge/Email_Verification-Required-important" alt="Email Verification Required">
+</div>
+
 The signup process includes email verification:
+
 1. When a user registers, a verification email is sent to their email address
 2. To enable this feature in your development environment, you need to:
    - Configure email settings in the `.env` file
    - Provide your SMTP server details (or use console backend for testing)
    - In development mode without proper email configuration, check your console output for the verification link
+
+## Unit Testing
+
+<div align="center">
+<img src="https://img.shields.io/badge/Tests-Automated-success" alt="Tests Automated">
+</div>
+
+The project includes a comprehensive suite of unit tests to ensure functionality works as expected:
+
+```bash
+# Navigate to the Backend directory
+cd Backend
+
+# Run all tests
+python manage.py test
+
+# Run tests for a specific app
+python manage.py test events
+python manage.py test accounts
+python manage.py test tickets
+```
+
+Test coverage includes:
+- User authentication and registration
+- Event creation, retrieval, updates and deletion
+- Ticket booking functionality
+- Permission controls
+- API endpoint validation
+
+Running tests regularly helps ensure that code changes don't introduce regressions.
 
 ## Security Features
 
