@@ -267,6 +267,214 @@
             </div>
         </div>
     </di
- 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../statics/config.js"></script>
+    <script src="../statics/auth-utils.js"></script>
+    <script>
+        function initializeDashboard() {
+            const isDashboardLoggedIn = localStorage.getItem('isDashboardLoggedIn') === 'true';
+            if (!isDashboardLoggedIn) {
+                window.location.href = 'dashboard-login.html';
+                return;
+            }
+
+            const userData = JSON.parse(localStorage.getItem(CONFIG.TOKEN_NAMES.DASHBOARD_USER_DATA) || '{}');
+            
+            if (!AUTH_UTILS.verifyAdminAccess(userData, 'index.html')) {
+                return;
+            }
+            
+            const userHeaderElement = document.querySelector('.user-info');
+            const userSidebarElement = document.querySelector('.user-name');
+            const userRoleElement = document.querySelector('.admin-role');
+            const username = userData.username || 'Admin';
+            
+            if (userHeaderElement) {
+                userHeaderElement.textContent = username;
+            }
+            
+            if (userSidebarElement) {
+                userSidebarElement.textContent = username;
+            }
+            
+            if (userRoleElement && userData.role) {
+                userRoleElement.textContent = userData.role.charAt(0).toUpperCase() + userData.role.slice(1);
+            }
+        }
+
+        window.addEventListener('load', () => {
+            if (typeof bootstrap === 'undefined') {
+                const fallbackScript = document.createElement('script');
+                fallbackScript.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js';
+                fallbackScript.onload = () => {
+                    loadAppScripts();
+                };
+                document.head.appendChild(fallbackScript);
+            } else {
+                loadAppScripts();
+            }
+        });
+
+        function loadAppScripts() {
+            const scripts = [
+                '../statics/dashboard-events.js',
+                '../statics/dashboard-search.js',
+                '../statics/dashboard-events-add.js'
+            ];
+            
+            scripts.reduce((promise, script) => {
+                return promise.then(() => {
+                    return new Promise((resolve) => {
+                        const scriptElement = document.createElement('script');
+                        scriptElement.src = script;
+                        scriptElement.onload = resolve;
+                        document.body.appendChild(scriptElement);
+                    });
+                });
+            }, Promise.resolve()).then(() => {
+                initializeDashboard();
+            });
+        }
+    </script>
+    <div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteEventModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-1">Are you sure you want to delete this event?</p>
+                    <p class="text-danger mb-0">This action cannot be undone.</p>
+                    <div class="mt-3 p-3 border rounded bg-light">
+                        <div class="d-flex align-items-center">
+                            <div class="event-image-small me-3">
+                                <img id="deleteEventImage" src="https://placehold.co/50x50" alt="Event" class="rounded" width="50">
+                            </div>
+                            <div>
+                                <h6 id="deleteEventName" class="mb-1">Event Name</h6>
+                                <div id="deleteEventDate" class="small text-muted">Event Date</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete Event</button>
+                </div>
+            </div>
+        </div>
+    </div
+    <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editEventModalLabel">Edit Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editEventForm">
+                        <input type="hidden" id="editEventId">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="editEventTitle" class="form-label">Event Title</label>
+                                <input type="text" class="form-control" id="editEventTitle" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editEventCategory" class="form-label">Category</label>
+                                <input type="text" class="form-control" id="editEventCategory" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editEventVenue" class="form-label">Venue</label>
+                                <input type="text" class="form-control" id="editEventVenue" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editEventPrice" class="form-label">Price ($)</label>
+                                <input type="number" class="form-control" id="editEventPrice" min="0" step="0.01" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editEventStartDate" class="form-label">Start Date & Time</label>
+                                <input type="datetime-local" class="form-control" id="editEventStartDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editEventDeadline" class="form-label">Registration Deadline</label>
+                                <input type="datetime-local" class="form-control" id="editEventDeadline" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="editEventDescription" class="form-label">Description</label>
+                                <textarea class="form-control" id="editEventDescription" rows="4" required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label for="editEventImageUpload" class="form-label">Event Image</label>
+                                <input type="file" class="form-control" id="editEventImageUpload" accept="image/*">
+                                <div class="form-text">Select a new image file (optional)</div>
+                            </div>
+                            <div class="col-12">
+                                <div class="current-image-preview mt-2">
+                                    <label class="form-label">Current Image:</label>
+                                    <img id="currentEventImage" src="https://placehold.co/150x100" alt="Current Event Image" class="img-thumbnail" style="max-height: 100px;">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="updateEventBtn">Update Event</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const darkToggle = document.getElementById('darkToggle');
+        const body = document.body;
+        const icon = darkToggle.querySelector('i');
+            
+            if (userHeaderElement) {
+                userHeaderElement.textContent = username;
+            }
+            
+            if (userSidebarElement) {
+                userSidebarElement.textContent = username;
+            }
+            
+            if (userRoleElement && userData.role) {
+                userRoleElement.textContent = userData.role.charAt(0).toUpperCase() + userData.role.slice(1);
+            }
+        });
+        
+        const darkToggle = document.getElementById('darkToggle');
+        const body = document.body;
+        const icon = darkToggle.querySelector('i');
+
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            body.classList.add('dark-mode');
+            icon.classList.replace('bi-moon-fill', 'bi-sun-fill');
+        }
+
+        darkToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+            
+            if (isDark) {
+                icon.classList.replace('bi-moon-fill', 'bi-sun-fill');
+            } else {
+                icon.classList.replace('bi-sun-fill', 'bi-moon-fill');
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            AUTH_UTILS.dashboardLogout();
+        });
+        
+        const currentDateElement = document.getElementById('currentDate');
+        if (currentDateElement) {
+            const now = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            currentDateElement.textContent = now.toLocaleDateString('en-US', options);
+        }
+    </script>
 </body>
 </html>
