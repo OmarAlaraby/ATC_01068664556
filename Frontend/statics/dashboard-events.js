@@ -662,6 +662,8 @@ function initPagination() {
     if (nextPageBtn) {
         nextPageBtn.addEventListener('click', goToNextPage);
     }
+}
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const isDashboardPage = document.getElementById('dashboardEventsTable');
@@ -669,12 +671,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (isDashboardPage && isDashboardLoggedIn) {
         fetchDashboardEvents();
-    }
-    initPagination();
-
-    const refreshBtn = document.getElementById('refreshEventsBtn');
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', () => fetchDashboardEvents());
+        initPagination();
+        
+        // Set up refresh button handler
+        const refreshBtn = document.getElementById('refreshEventsBtn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                fetchDashboardEvents();
+            });
+        }
     }
 });
-}

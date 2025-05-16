@@ -87,6 +87,7 @@
 
         <div class="main-content">
             <div class="container-fluid">
+                <!-- Header -->
                 <div class="dashboard-header mb-4">
                     <div class="welcome-section">
                         <h1 class="dashboard-title">Dashboard</h1>
@@ -101,6 +102,7 @@
                     </div>
                 </div>
                 
+                <!-- Stats Row -->
                 <div class="row mb-4">
                     <div class="col-12">
                         <div class="dashboard-stats-container">
@@ -120,6 +122,7 @@
                     </div>
                 </div>
                 
+                <!-- Recent Events -->
                 <div class="row mb-4">
                     <div class="col-12">
                         <div class="dashboard-card">
@@ -135,7 +138,7 @@
                                 </div>
                             </div>
                             
-        
+                            <!-- Search and Filters -->
                             <div class="events-filters mb-4">
                                 <div class="row g-2">
                                     <div class="col-md-8">
@@ -178,7 +181,7 @@
                                 </table>
                             </div>
                             
-        
+                            <!-- Pagination -->
                             <div class="pagination-container mt-4 d-flex justify-content-between align-items-center">
                                 <div class="pagination-info">
                                     <span id="paginationInfo">Showing 0 of 0 events</span>
@@ -267,76 +270,16 @@
             </div>
         </div>
     </div>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../statics/config.js"></script>
     <script src="../statics/auth-utils.js"></script>
-    <script>
-        function initializeDashboard() {
-            const isDashboardLoggedIn = localStorage.getItem('isDashboardLoggedIn') === 'true';
-            if (!isDashboardLoggedIn) {
-                window.location.href = 'dashboard-login.html';
-                return;
-            }
+    <script src="../statics/dashboard-events.js"></script>
+    <script src="../statics/dashboard-search.js"></script>
+    <script src="../statics/dashboard-events-add.js"></script>
 
-            const userData = JSON.parse(localStorage.getItem(CONFIG.TOKEN_NAMES.DASHBOARD_USER_DATA) || '{}');
-            
-            if (!AUTH_UTILS.verifyAdminAccess(userData, 'index.html')) {
-                return;
-            }
-            
-            const userHeaderElement = document.querySelector('.user-info');
-            const userSidebarElement = document.querySelector('.user-name');
-            const userRoleElement = document.querySelector('.admin-role');
-            const username = userData.username || 'Admin';
-            
-            if (userHeaderElement) {
-                userHeaderElement.textContent = username;
-            }
-            
-            if (userSidebarElement) {
-                userSidebarElement.textContent = username;
-            }
-            
-            if (userRoleElement && userData.role) {
-                userRoleElement.textContent = userData.role.charAt(0).toUpperCase() + userData.role.slice(1);
-            }
-        }
-
-        window.addEventListener('load', () => {
-            if (typeof bootstrap === 'undefined') {
-                const fallbackScript = document.createElement('script');
-                fallbackScript.src = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js';
-                fallbackScript.onload = () => {
-                    loadAppScripts();
-                };
-                document.head.appendChild(fallbackScript);
-            } else {
-                loadAppScripts();
-            }
-        });
-
-        function loadAppScripts() {
-            const scripts = [
-                '../statics/dashboard-events.js',
-                '../statics/dashboard-search.js',
-                '../statics/dashboard-events-add.js'
-            ];
-            
-            scripts.reduce((promise, script) => {
-                return promise.then(() => {
-                    return new Promise((resolve) => {
-                        const scriptElement = document.createElement('script');
-                        scriptElement.src = script;
-                        scriptElement.onload = resolve;
-                        document.body.appendChild(scriptElement);
-                    });
-                });
-            }, Promise.resolve()).then(() => {
-                initializeDashboard();
-                fetchDashboardEvents();
-            });
-        }
-    </script>
+    <!-- Delete Event Confirmation Modal -->
     <div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -350,7 +293,7 @@
                     <div class="mt-3 p-3 border rounded bg-light">
                         <div class="d-flex align-items-center">
                             <div class="event-image-small me-3">
-                                <img id="deleteEventImage" src="https://placehold.co/50x50" alt="Event" class="rounded" width="50">
+                                <img id="deleteEventImage" src="https://via.placeholder.com/50x50" alt="Event" class="rounded" width="50">
                             </div>
                             <div>
                                 <h6 id="deleteEventName" class="mb-1">Event Name</h6>
@@ -366,7 +309,8 @@
             </div>
         </div>
     </div>
-
+    
+    <!-- Edit Event Modal -->
     <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -414,7 +358,7 @@
                             <div class="col-12">
                                 <div class="current-image-preview mt-2">
                                     <label class="form-label">Current Image:</label>
-                                    <img id="currentEventImage" src="https://placehold.co/150x100" alt="Current Event Image" class="img-thumbnail" style="max-height: 100px;">
+                                    <img id="currentEventImage" src="https://via.placeholder.com/150x100" alt="Current Event Image" class="img-thumbnail" style="max-height: 100px;">
                                 </div>
                             </div>
                         </div>
@@ -429,10 +373,44 @@
     </div>
     
     <script>
-        function setupDarkMode() {
-            const darkToggle = document.getElementById('darkToggle');
-            const body = document.body;
-            const icon = darkToggle.querySelector('i');
+        // Check if user is logged into dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDashboardLoggedIn = localStorage.getItem('isDashboardLoggedIn') === 'true';
+            if (!isDashboardLoggedIn) {
+                window.location.href = 'dashboard-login.html';
+                return;
+            }
+
+            // Get dashboard user data
+            const userData = JSON.parse(localStorage.getItem(CONFIG.TOKEN_NAMES.DASHBOARD_USER_DATA) || '{}');
+            
+            // Verify admin role (case insensitive)
+            if (!AUTH_UTILS.verifyAdminAccess(userData, 'index.html')) {
+                return; // Redirect handled in the utility function
+            }
+            
+            // Update the username in header and sidebar
+            const userHeaderElement = document.querySelector('.user-info');
+            const userSidebarElement = document.querySelector('.user-name');
+            const userRoleElement = document.querySelector('.admin-role');
+            const username = userData.username || 'Admin';
+            
+            if (userHeaderElement) {
+                userHeaderElement.textContent = username;
+            }
+            
+            if (userSidebarElement) {
+                userSidebarElement.textContent = username;
+            }
+            
+            if (userRoleElement && userData.role) {
+                userRoleElement.textContent = userData.role.charAt(0).toUpperCase() + userData.role.slice(1);
+            }
+        });
+        
+        const darkToggle = document.getElementById('darkToggle');
+        const body = document.body;
+        const icon = darkToggle.querySelector('i');
 
         if (localStorage.getItem('darkMode') === 'enabled') {
             body.classList.add('dark-mode');
@@ -461,14 +439,6 @@
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
             currentDateElement.textContent = now.toLocaleDateString('en-US', options);
         }
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            setupDarkMode();
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                AUTH_UTILS.dashboardLogout();
-            });
-        });
     </script>
 </body>
 </html>
