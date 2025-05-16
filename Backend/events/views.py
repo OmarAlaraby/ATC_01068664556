@@ -21,6 +21,10 @@ class EventViewSet(AreebViewSet) :
     queryset = Event.objects.all()
     pagination_class = AreebPagination
     
+    def create(self, request, *args, **kwargs):
+        print(request.data)
+        return super().create(request, *args, **kwargs)
+    
 
 # @api_view(['POST'])
 # def book_event(request, event_id):

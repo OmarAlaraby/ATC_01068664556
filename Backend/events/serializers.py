@@ -36,6 +36,11 @@ class EventSerializer(serializers.ModelSerializer):
         return obj.deadline > timezone.now() and obj.start_date > timezone.now()
         
     def create(self, validated_data):
+        image_upload = validated_data.pop('image_upload', None)
+        if image_upload:
+            validated_data['image'] = image_upload
+        
+        
         tags_data = validated_data.pop('tags', [])
         event = Event.objects.create(**validated_data)
         
