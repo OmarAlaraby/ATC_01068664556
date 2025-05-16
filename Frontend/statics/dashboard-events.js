@@ -187,10 +187,7 @@ function updateDashboardEventsTable() {
             <td>${event.venue}</td>
             <td><span class="badge ${statusBadgeClass}">${event.status.charAt(0).toUpperCase() + event.status.slice(1)}</span></td>
             <td>
-                <div class="d-flex flex-column">
-                    <span class="badge ${event.isBooked ? 'bg-primary' : 'bg-light text-dark'} mb-1">
-                        ${event.isBooked ? 'Booked' : 'Not Booked'}
-                    </span>
+                <div class="d-flex">
                     <span class="badge ${event.isAvailable ? 'bg-success' : 'bg-danger'}">
                         ${event.isAvailable ? 'Available' : 'Not Available'}
                     </span>
