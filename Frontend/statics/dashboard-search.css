@@ -1,0 +1,113 @@
+.search-container {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 2;
+}
+
+.search-input {
+    padding-left: 38px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    height: 38px;
+}
+
+.search-input:focus {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    border-color: rgba(13, 110, 253, 0.5);
+}
+
+
+.events-filters {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+
+#availabilityFilter {
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 0 0.75rem;
+    font-size: 0.9rem;
+    height: 38px;
+}
+
+#availabilityFilter:focus {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    border-color: rgba(13, 110, 253, 0.5);
+}
+
+
+body.dark-mode .search-input,
+body.dark-mode #availabilityFilter {
+    background-color: #2a3041;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e9ecef;
+}
+
+body.dark-mode .search-icon {
+    color: #adb5bd;
+}
+
+body.dark-mode .events-filters {
+    background-color: #232b41;
+}
+
+body.dark-mode .filtered-empty-state,
+body.dark-mode .search-empty-state {
+    background-color: #232b41;
+    color: #e9ecef;
+}
+
+body.dark-mode .search-highlight {
+    background-color: rgba(255, 205, 0, 0.3);
+}
+
+
+.filtered-empty-state, 
+.search-empty-state {
+    padding: 30px 20px;
+    text-align: center;
+    background-color: #f9fafb;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.filtered-empty-state i, 
+.search-empty-state i {
+    font-size: 2.5rem;
+    color: #6c757d;
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
+.filtered-empty-state h5, 
+.search-empty-state h5 {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+
+.search-highlight {
+    background-color: rgba(255, 242, 0, 0.3);
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+
+@media (max-width: 768px) {
+    .events-filters .row > div {
+        margin-bottom: 10px;
+    }
+}

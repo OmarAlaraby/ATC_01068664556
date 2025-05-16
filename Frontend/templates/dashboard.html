@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Areeb Events Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../statics/dashboard.css">
+    <link rel="stylesheet" href="../statics/dashboard-search.css">
+    <style>
+        .dark-toggle {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 9999;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #fff;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .dark-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        body.dark-mode .dark-toggle {
+            background: #232b41;
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        body.dark-mode .dark-toggle:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-brand">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Areeb Events</span>
+                </a>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+            
+            <div class="admin-info">
+                <div class="admin-avatar">
+                    <i class="bi bi-person-circle"></i>
+                </div>
+                <div class="admin-details">
+                    <span class="user-name">Admin</span>
+                    <span class="admin-role">Administrator</span>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <div class="nav-divider"></div>
+                
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="bi bi-calendar-event"></i>
+                        <span>Events</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <a href="#" class="nav-link sidebar-logout" id="logoutBtn">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <div class="container-fluid">
+                <div class="dashboard-header mb-4">
+                    <div class="welcome-section">
+                        <h1 class="dashboard-title">Dashboard</h1>
+                        <div class="welcome-message">
+                            <span class="greeting">Welcome back,</span>
+                            <span class="user-info">Admin</span>
+                        </div>
+                    </div>
+                    <div class="date-display">
+                        <i class="bi bi-calendar3"></i>
+                        <span id="currentDate">May 15, 2025</span>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-stats-container">
+                            <div class="events-count-card">
+                                <div class="events-count-icon">
+                                    <i class="bi bi-calendar-event"></i>
+                                </div>
+                                <div class="events-count-details">
+                                    <div class="events-count-number stat-number">0</div>
+                                    <div class="events-count-label">Total Events</div>
+                                </div>
+                                <div class="events-count-trend">
+                                    <i class="bi bi-arrow-up-right"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="events-title mb-0">Recent Events</h4>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-primary me-2" id="refreshEventsBtn">
+                                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                                    </button>
+                                    <button class="btn btn-sm btn-primary" id="addEventBtn" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                                        <i class="bi bi-plus-lg me-1"></i>Add Event
+                                    </button>
+                                </div>
+                            </div>
+                            
+        
+                            <div class="events-filters mb-4">
+                                <div class="row g-2">
+                                    <div class="col-md-8">
+                                        <div class="search-container">
+                                            <i class="bi bi-search search-icon"></i>
+                                            <input type="text" id="eventsSearch" class="form-control search-input" placeholder="Search events by name, venue or category...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select id="availabilityFilter" class="form-select">
+                                            <option value="">All Events</option>
+                                            <option value="available">Available</option>
+                                            <option value="not_available">Not Available</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="dashboard-table" id="dashboardEventsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Event Name</th>
+                                            <th>Date</th>
+                                            <th>Venue</th>
+                                            <th>Status</th>
+                                            <th>Bookings</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4">
+                                                <div class="spinner-border text-primary mb-3" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                                <p class="mb-0">Loading events...</p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+        
+                            <div class="pagination-container mt-4 d-flex justify-content-between align-items-center">
+                                <div class="pagination-info">
+                                    <span id="paginationInfo">Showing 0 of 0 events</span>
+                                </div>
+                                <nav aria-label="Events pagination">
+                                    <ul class="pagination mb-0">
+                                        <li class="page-item disabled" id="prevPageItem">
+                                            <button class="page-link" id="prevPageBtn" aria-label="Previous page">
+                                                <i class="bi bi-chevron-left"></i>
+                                            </button>
+                                        </li>
+                                        <li class="page-item active">
+                                            <span class="page-link" id="currentPageDisplay">1</span>
+                                        </li>
+                                        <li class="page-item disabled" id="nextPageItem">
+                                            <button class="page-link" id="nextPageBtn" aria-label="Next page">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <button class="dark-toggle" id="darkToggle" title="Toggle dark mode">
+        <i class="bi bi-moon-fill"></i>
+    </button>
+    
+    <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addEventModalLabel">Add New Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addEventForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="eventTitle" class="form-label">Event Title</label>
+                                <input type="text" class="form-control" id="eventTitle" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="eventCategory" class="form-label">Category</label>
+                                <input type="text" class="form-control" id="eventCategory" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="eventVenue" class="form-label">Venue</label>
+                                <input type="text" class="form-control" id="eventVenue" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="eventPrice" class="form-label">Price ($)</label>
+                                <input type="number" class="form-control" id="eventPrice" min="0" step="0.01" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="eventStartDate" class="form-label">Start Date & Time</label>
+                                <input type="datetime-local" class="form-control" id="eventStartDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="eventDeadline" class="form-label">Registration Deadline</label>
+                                <input type="datetime-local" class="form-control" id="eventDeadline" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="eventDescription" class="form-label">Description</label>
+                                <textarea class="form-control" id="eventDescription" rows="4" required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label for="eventImageUpload" class="form-label">Event Image</label>
+                                <input type="file" class="form-control" id="eventImageUpload" accept="image/*">
+                                <div class="form-text">Select an image file for the event (JPG, PNG, etc.)</div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveEventBtn">Save Event</button>
+                </div>
+            </div>
+        </div>
+    </di
+ 
+</body>
+</html>
