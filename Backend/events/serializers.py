@@ -49,3 +49,14 @@ class EventSerializer(serializers.ModelSerializer):
             event.tags.add(tag)
         
         return event
+        
+    def update(self, instance, validated_data):
+        image_upload = validated_data.pop('image_upload', None)
+        if image_upload:
+            instance.image = image_upload
+            
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+            
+        instance.save()
+        return instance

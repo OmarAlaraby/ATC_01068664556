@@ -488,11 +488,32 @@ async function updateEvent(eventId) {
             }
             
             const errorData = await response.json();
-            throw new Error(errorData.message || `Failed to update event. Status: ${response.status}`);
+            console.log('Error response:', errorData);
+            
+            // Check if there are field-specific validation errors
+            if (errorData.errors && typeof errorData.errors === 'object') {
+                const errorFields = Object.keys(errorData.errors);
+                const errorMessages = errorFields.map(field => {
+                    const fieldErrors = errorData.errors[field];
+                    return `${field}: ${Array.isArray(fieldErrors) ? fieldErrors.join(', ') : fieldErrors}`;
+                });
+                throw new Error(`Validation errors: ${errorMessages.join('; ')}`);
+            } else {
+                throw new Error(errorData.message || errorData.detail || `Failed to update event. Status: ${response.status}`);
+            }
         }
         
         const data = await response.json();
         console.log('Update event response:', data);
+        
+        // Log the structure of the response to better understand the API
+        console.log('Response structure:', {
+            hasStatus: 'status' in data,
+            statusValue: data.status,
+            hasMessage: 'message' in data,
+            messageValue: data.message,
+            otherKeys: Object.keys(data)
+        });
         
         if (data.status !== 'success') {
             throw new Error(data.message || 'Failed to update event');
@@ -501,6 +522,17 @@ async function updateEvent(eventId) {
         const editEventModal = bootstrap.Modal.getInstance(document.getElementById('editEventModal'));
         if (editEventModal) {
             editEventModal.hide();
+            
+            setTimeout(() => {
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+            }, 300);
         }
         
         fetchDashboardEvents();
@@ -510,6 +542,31 @@ async function updateEvent(eventId) {
     } catch (error) {
         console.error('Error updating event:', error);
         showErrorToast(`Failed to update event: ${error.message}`);
+        
+        // Add additional error reporting for debugging
+        if (error.response && error.response.data) {
+            console.error('Response data:', error.response.data);
+        }
+        
+        // Try to fetch the current event to compare
+        try {
+            const accessToken = localStorage.getItem(CONFIG.TOKEN_NAMES.DASHBOARD_ACCESS);
+            if (accessToken) {
+                const debugResponse = await fetch(`${CONFIG.API_BASE_URL}/events/${eventId}/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (debugResponse.ok) {
+                    const debugData = await debugResponse.json();
+                    console.log('Current event data:', debugData);
+                }
+            }
+        } catch (debugError) {
+            console.error('Debug fetch error:', debugError);
+        }
     } finally {
         showDashboardLoading(false);
     }
@@ -584,6 +641,18 @@ async function deleteEvent(eventId) {
         const deleteEventModal = bootstrap.Modal.getInstance(document.getElementById('deleteEventModal'));
         if (deleteEventModal) {
             deleteEventModal.hide();
+            
+            // Ensure body scroll is restored
+            setTimeout(() => {
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+            }, 300); // Small delay to let Bootstrap's hide animation complete
         }
         
         fetchDashboardEvents();
